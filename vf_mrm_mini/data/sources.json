@@ -1,0 +1,14 @@
+{
+  "[SR11-7]": {
+    "title": "Supervisory Guidance on Model Risk Management",
+    "url": "https://www.federalreserve.gov/supervisionreg/srletters/sr1107a1.pdf",
+    "publisher": "Board of Governors of the Federal Reserve System and Office of the Comptroller of the Currency",
+    "date": "2011-04-04"
+  },
+  "[OCC-Handbook]": {
+    "title": "Model Risk Management, Comptroller’s Handbook",
+    "url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/files/model-risk-management/pub-ch-model-risk.pdf",
+    "publisher": "Office of the Comptroller of the Currency",
+    "date": "2021-08-01"
+  }
+}
