@@ -153,6 +153,7 @@ def load_environment(
     judge_model_name: Optional[str] = None,
     use_judge: bool = True,
     judge_weight: float = 1.0,
+    eval_recipe: Optional[str] = None,
     **kwargs: Any
 ) -> vf.Environment:
     """Construct and return a `verifiers.SingleTurnEnv` for model risk management.
@@ -220,6 +221,13 @@ def load_environment(
         parser=parser,
     )
 
+    # Variant: light compliance rubric (for hybrid judge-heavy eval)
+    light_compliance = vf.Rubric(
+        funcs=[parser.get_format_reward_func()],
+        weights=[0.1],
+        parser=parser,
+    )
+
     # 4) Judge rubric: uses an LLM to check semantic correctness
     judge_prompt = (
         "You are grading a short bank supervision answer against the provided\n"
@@ -235,12 +243,22 @@ def load_environment(
     judge = vf.JudgeRubric(judge_prompt=judge_prompt, model_name=judge_model_name)
 
     # 5) Assemble environment
-    rubrics: List[vf.Rubric] = [base_rubric]
-    if use_judge:
-        # Apply the judge as an additional rubric with configurable weight.
-        if judge_weight != 1.0:
-            judge = vf.Rubric(funcs=[judge], weights=[judge_weight])  # lightweight wrapper
-        rubrics.append(judge)
+    # Choose scoring recipe
+    rubrics: List[vf.Rubric]
+    recipe = (eval_recipe or "deterministic").lower()
+    if recipe == "judge_only":
+        # Judge-only holistic scoring
+        rubrics = [judge]
+    elif recipe == "hybrid":
+        # Slight compliance presence + dominant judge
+        j = judge if judge_weight == 1.0 else vf.Rubric(funcs=[judge], weights=[judge_weight])
+        rubrics = [light_compliance, j]
+    else:
+        # Deterministic by default; optionally include judge if requested
+        rubrics = [base_rubric]
+        if use_judge:
+            j = judge if judge_weight == 1.0 else vf.Rubric(funcs=[judge], weights=[judge_weight])
+            rubrics.append(j)
 
     env = vf.SingleTurnEnv(
         dataset=dataset,
