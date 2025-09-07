@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking MRM Model Evaluation Report - GPT-5-nano</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        h2 {
+            color: #2a5298;
+            margin: 30px 0 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #e0e6ed;
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            color: #4a5568;
+            margin: 20px 0 10px;
+            font-size: 1.3em;
+        }
+        
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .metric-card.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .metric-card.warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .metric-card.info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .metric-value {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .question-analysis {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .success-question {
+            border-left-color: #38ef7d;
+            background: #f0fdf4;
+        }
+        
+        .failed-question {
+            border-left-color: #f5576c;
+            background: #fef2f2;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e6ed;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        
+        .badge-easy {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-medium {
+            background-color: #fed7aa;
+            color: #92400e;
+        }
+        
+        .badge-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-failure {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .insight-box {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #7c2d12;
+        }
+        
+        .recommendation {
+            background: #e0e7ff;
+            border-left: 4px solid #4c1d95;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #718096;
+            font-size: 0.9em;
+        }
+        
+        .chart-container {
+            margin: 20px 0;
+            height: 300px;
+            position: relative;
+        }
+        
+        .bar {
+            height: 40px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            margin: 10px 0;
+            border-radius: 5px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .bar-label {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .bar-value {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .critical-finding {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .critical-finding h3 {
+            color: #d97706;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Banking MRM Model Evaluation Report</h1>
+            <p class="subtitle">GPT-5-nano Performance Analysis on Model Risk Management Questions</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Executive Summary -->
+        <section class="card">
+            <h2>Executive Summary</h2>
+            <p>This report analyzes the performance of GPT-5-nano on a banking model risk management (MRM) evaluation consisting of 20 questions based on SR11-7 guidance. The evaluation revealed significant performance challenges that require immediate attention.</p>
+            
+            <div class="critical-finding">
+                <h3>⚠️ Critical Finding</h3>
+                <p><strong>All model completions were empty.</strong> The model failed to generate any content for all 20 questions, despite being prompted with specific formatting requirements (<code>&lt;think&gt;..&lt;/think&gt;</code>, <code>&lt;answer&gt;..&lt;/answer&gt;</code>, <code>&lt;citations&gt;..&lt;/citations&gt;</code>).</p>
+            </div>
+        </section>
+        
+        <!-- Key Metrics -->
+        <section class="card">
+            <h2>Key Performance Metrics</h2>
+            <div class="metric-grid">
+                <div class="metric-card warning">
+                    <div class="metric-label">Overall Success Rate</div>
+                    <div class="metric-value">25%</div>
+                    <div class="metric-label">5 out of 20 questions</div>
+                </div>
+                <div class="metric-card info">
+                    <div class="metric-label">Average Reward</div>
+                    <div class="metric-value">0.25</div>
+                    <div class="metric-label">Binary scoring (0 or 1)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Total Questions</div>
+                    <div class="metric-value">20</div>
+                    <div class="metric-label">Single rollout each</div>
+                </div>
+                <div class="metric-card success">
+                    <div class="metric-label">LLM Judge Agreement</div>
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">Perfect alignment</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Performance by Difficulty -->
+        <section class="card">
+            <h2>Performance Analysis by Question Difficulty</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Difficulty Level</th>
+                        <th>Total Questions</th>
+                        <th>Successful</th>
+                        <th>Success Rate</th>
+                        <th>Average Reward</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-easy">Easy</span></td>
+                        <td>16</td>
+                        <td>5</td>
+                        <td>31.25%</td>
+                        <td>0.3125</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                        <td>4</td>
+                        <td>0</td>
+                        <td>0%</td>
+                        <td>0.0</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="insight-box">
+                <h3>📊 Key Insight</h3>
+                <p>The model showed poor performance across all difficulty levels, with even "easy" questions achieving only a 31.25% success rate. All medium-difficulty questions failed completely.</p>
+            </div>
+        </section>
+        
+        <!-- Successful Questions Analysis -->
+        <section class="card">
+            <h2>Successful Questions Analysis</h2>
+            <p>Despite producing empty completions, 5 questions received a reward of 1.0. These were:</p>
+            
+            <div class="question-analysis success-question">
+                <h3>Question #4 (ID: 4)</h3>
+                <p><strong>Topic:</strong> Expert judgment and qualitative inputs in models</p>
+                <p><strong>Question:</strong> "A tool uses mainly expert judgment and qualitative inputs but produces numerical scores. Should it be treated as a model?"</p>
+                <p><strong>Expected Answer:</strong> Yes. Quantitative approaches with qualitative or judgmental inputs are considered models when the output is quantitative in nature.</p>
+                <p><strong>Difficulty:</strong> <span class="badge badge-easy">Easy</span></p>
+            </div>
+            
+            <div class="question-analysis success-question">
+                <h3>Question #8 (ID: 8)</h3>
+                <p><strong>Topic:</strong> Model risk factors</p>
+                <p><strong>Question:</strong> "What factors tend to increase model risk, and why should aggregate model risk be considered?"</p>
+                <p><strong>Expected Answer:</strong> Model risk increases with greater model complexity, higher uncertainty in inputs and assumptions, broader use, and larger potential impact...</p>
+                <p><strong>Difficulty:</strong> <span class="badge badge-medium">Medium</span></p>
+            </div>
+            
+            <div class="question-analysis success-question">
+                <h3>Question #9 (ID: 9)</h3>
+                <p><strong>Topic:</strong> Effective challenge</p>
+                <p><strong>Question:</strong> "What is meant by 'effective challenge' of models, and what conditions enable it?"</p>
+                <p><strong>Expected Answer:</strong> Effective challenge is critical analysis by objective, informed parties...</p>
+                <p><strong>Difficulty:</strong> <span class="badge badge-easy">Easy</span></p>
+            </div>
+            
+            <div class="question-analysis success-question">
+                <h3>Question #10 (ID: 10)</h3>
+                <p><strong>Topic:</strong> Model misuse</p>
+                <p><strong>Question:</strong> "A bank uses a model in a market for which it was not designed. What is the key risk?"</p>
+                <p><strong>Expected Answer:</strong> Using a model outside its intended environment can be inappropriate and risky...</p>
+                <p><strong>Difficulty:</strong> <span class="badge badge-easy">Easy</span></p>
+            </div>
+            
+            <div class="question-analysis success-question">
+                <h3>Question #16 (ID: 16)</h3>
+                <p><strong>Topic:</strong> Data standards</p>
+                <p><strong>Question:</strong> "What standards apply to data used for model development?"</p>
+                <p><strong>Expected Answer:</strong> Data should undergo rigorous assessment for quality and relevance...</p>
+                <p><strong>Difficulty:</strong> <span class="badge badge-easy">Easy</span></p>
+            </div>
+        </section>
+        
+        <!-- Topic Coverage Analysis -->
+        <section class="card">
+            <h2>Topic Coverage Analysis</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Topic Category</th>
+                        <th>Questions</th>
+                        <th>Success Rate</th>
+                        <th>Tags</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>General MRM Concepts</td>
+                        <td>14</td>
+                        <td>35.7%</td>
+                        <td><span class="badge">general</span></td>
+                    </tr>
+                    <tr>
+                        <td>Model Validation</td>
+                        <td>2</td>
+                        <td>0%</td>
+                        <td><span class="badge">validation</span></td>
+                    </tr>
+                    <tr>
+                        <td>Documentation & Inventory</td>
+                        <td>1</td>
+                        <td>0%</td>
+                        <td><span class="badge">inventory-docs</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Anomaly Analysis -->
+        <section class="card">
+            <h2>Anomaly Analysis: Empty Completions with Positive Rewards</h2>
+            <div class="critical-finding">
+                <h3>🔍 Investigation Required</h3>
+                <p>A critical anomaly was detected: <strong>25% of questions received perfect scores (1.0) despite the model producing empty completions.</strong> This suggests one of the following scenarios:</p>
+                <ul style="margin-top: 10px; margin-left: 20px;">
+                    <li>The evaluation framework may have a bug in reward assignment</li>
+                    <li>The reward system might be evaluating based on criteria other than completion content</li>
+                    <li>There could be a data pipeline issue where completions are not being properly recorded</li>
+                    <li>The model might be producing output in a format not captured by the logging system</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Recommendations -->
+        <section class="card">
+            <h2>Recommendations</h2>
+            
+            <div class="recommendation">
+                <h3>1. Investigate Technical Issues</h3>
+                <p>Immediately investigate why all completions appear empty. Check:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Model deployment and API connectivity</li>
+                    <li>Token generation limits and sampling parameters</li>
+                    <li>Logging and data capture mechanisms</li>
+                    <li>Prompt formatting and special token handling</li>
+                </ul>
+            </div>
+            
+            <div class="recommendation">
+                <h3>2. Validate Reward Assignment Logic</h3>
+                <p>Review the reward assignment mechanism to understand why empty completions received positive scores. This is critical for evaluation integrity.</p>
+            </div>
+            
+            <div class="recommendation">
+                <h3>3. Model Configuration Review</h3>
+                <p>Review the model's configuration, particularly:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Max tokens setting (currently 256) - may need adjustment</li>
+                    <li>Temperature and sampling parameters</li>
+                    <li>System prompt effectiveness</li>
+                    <li>Special token handling for the required format tags</li>
+                </ul>
+            </div>
+            
+            <div class="recommendation">
+                <h3>4. Incremental Testing Approach</h3>
+                <p>Before running full evaluations, conduct smaller tests to ensure:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Model generates any output at all</li>
+                    <li>Output follows the required format</li>
+                    <li>Citations are properly formatted</li>
+                    <li>Reward system correctly evaluates responses</li>
+                </ul>
+            </div>
+            
+            <div class="recommendation">
+                <h3>5. Enhanced Monitoring</h3>
+                <p>Implement better monitoring for future evaluations:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Real-time completion validation</li>
+                    <li>Token usage tracking</li>
+                    <li>Format compliance checking</li>
+                    <li>Intermediate checkpoint saving</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Technical Details -->
+        <section class="card">
+            <h2>Technical Configuration</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Value</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Model</td>
+                        <td>gpt-5-nano</td>
+                        <td>Latest nano variant</td>
+                    </tr>
+                    <tr>
+                        <td>Environment</td>
+                        <td>banking-mrm</td>
+                        <td>Specialized banking domain</td>
+                    </tr>
+                    <tr>
+                        <td>Max Tokens</td>
+                        <td>256</td>
+                        <td>May be insufficient for detailed answers</td>
+                    </tr>
+                    <tr>
+                        <td>Rollouts per Example</td>
+                        <td>1</td>
+                        <td>Single attempt per question</td>
+                    </tr>
+                    <tr>
+                        <td>Required Citations</td>
+                        <td>[SR11-7]</td>
+                        <td>Federal Reserve guidance</td>
+                    </tr>
+                    <tr>
+                        <td>Evaluation Date</td>
+                        <td>2025-09-07</td>
+                        <td>Future date - verify correctness</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Conclusion -->
+        <section class="card">
+            <h2>Conclusion</h2>
+            <p>This evaluation of GPT-5-nano on banking MRM questions revealed critical issues that prevent proper assessment of the model's capabilities. The combination of empty completions and positive rewards indicates fundamental problems in either the model deployment, evaluation framework, or both.</p>
+            
+            <p style="margin-top: 15px;"><strong>Immediate action is required to:</strong></p>
+            <ol style="margin-left: 20px; margin-top: 10px;">
+                <li>Diagnose and fix the empty completion issue</li>
+                <li>Validate the reward assignment mechanism</li>
+                <li>Re-run the evaluation with proper monitoring</li>
+                <li>Establish baseline performance metrics</li>
+            </ol>
+            
+            <p style="margin-top: 15px;">Until these issues are resolved, no meaningful conclusions can be drawn about the model's actual performance on banking supervision analysis tasks.</p>
+        </section>
+    </div>
+    
+    <footer class="footer">
+        <p>Banking MRM Model Evaluation Report - Generated on <script>document.write(new Date().toLocaleDateString());</script></p>
+        <p>Based on evaluation ID: 8e5dc923</p>
+    </footer>
+</body>
+</html>

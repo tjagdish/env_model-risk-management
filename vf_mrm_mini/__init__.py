@@ -209,6 +209,7 @@ def load_environment(
     use_judge: bool = True,
     judge_weight: float = 1.0,
     eval_recipe: Optional[str] = None,
+    judge_sampling_args: Optional[Dict[str, Any]] = None,
     **kwargs: Any
 ) -> vf.Environment:
     """Construct and return a `verifiers.SingleTurnEnv` for model risk management.
@@ -298,7 +299,12 @@ def load_environment(
         "Deduct for statements not supported by SR 11-7/OCC MRM, missing required\n"
         "structure (tags), or irrelevant citations."
     )
-    judge = vf.JudgeRubric(parser=parser, judge_model=(judge_model_name or "gpt-4.1-nano"), judge_prompt=judge_prompt)
+    judge = vf.JudgeRubric(
+        parser=parser,
+        judge_model=(judge_model_name or "gpt-5"),
+        judge_prompt=judge_prompt,
+        judge_sampling_args=judge_sampling_args or {},
+    )
     judge_reward_func = _make_llm_judge_reward(judge)
 
     # 5) Assemble environment

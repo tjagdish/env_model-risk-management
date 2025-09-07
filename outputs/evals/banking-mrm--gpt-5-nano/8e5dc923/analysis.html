@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" />
+<title>banking-mrm eval report</title>
+<style>
+ body { font: 14px/1.4 -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; margin: 16px; }
+ h1 { margin: 0 0 8px 0; }
+ .row { display: flex; gap: 24px; flex-wrap: wrap; }
+ .card { border: 1px solid #ddd; padding: 12px; border-radius: 8px; }
+ .chart { width: 460px; height: 220px; }
+ .small { font-size: 12px; color: #555; }
+ .table { border-collapse: collapse; width: 100%; }
+ .table th, .table td { border-bottom: 1px solid #eee; padding: 6px 8px; text-align: left; }
+ .bar { height: 16px; background: #54A24B; }
+ .bar0 { background: #4C78A8; }
+ .bar1 { background: #F58518; }
+ .tagrow { display:flex; gap:8px; align-items:center; margin:4px 0; }
+ .taglabel { width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ .tagbar { flex:1; height: 12px; background:#54A24B; }
+ .badge { display:inline-block; padding:1px 6px; background:#eee; border-radius:10px; margin-left:6px; }
+</style></head>
+<body>
+<h1>Banking MRM – Judge-only Evaluation</h1>
+<div class="small">File: results.jsonl</div>
+<div class="row">
+  <div class="card">
+    <h3>Summary</h3>
+    <div>Count: 20</div>
+    <div>Mean: 0.25, Std: 0.433</div>
+    <div>Median: 0.0, Min/Max: 0.0 / 1.0</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="card">
+    <h3>Histogram</h3>
+    <div id="hist" class="chart"></div>
+  </div>
+  <div class="card">
+    <h3>Reward by Index</h3>
+    <div id="line" class="chart"></div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="card" style="min-width:480px;">
+    <h3>Worst 5</h3>
+    <table class="table"><thead><tr><th>#</th><th>Reward</th><th>Tags</th><th>Question (truncated)</th></tr></thead>
+      <tbody id="worst"></tbody>
+    </table>
+  </div>
+  <div class="card" style="min-width:460px;">
+    <h3>Per-tag Avg (top by count)</h3>
+    <div id="tags"></div>
+  </div>
+</div>
+
+<script>
+const data = {"rewards": [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0], "tag_avgs": [["validation", 0.0, 2], ["inventory-docs", 0.0, 1], ["general", 0.29411764705882354, 17]], "worst": [{"index": 0, "reward": 0.0, "tags": ["general"], "question": "[{'content': 'Answer as a bank supervision analyst. Always use <think>..</think>, then <answer>..</answer>, then <citations>..</citations>. Only cite\\napproved tokens: [OCC-Handbook], [SR11-7].', 'rol"}, {"index": 1, "reward": 0.0, "tags": ["general"], "question": "[{'content': 'Answer as a bank supervision analyst. Always use <think>..</think>, then <answer>..</answer>, then <citations>..</citations>. Only cite\\napproved tokens: [OCC-Handbook], [SR11-7].', 'rol"}, {"index": 2, "reward": 0.0, "tags": ["general"], "question": "[{'content': 'Answer as a bank supervision analyst. Always use <think>..</think>, then <answer>..</answer>, then <citations>..</citations>. Only cite\\napproved tokens: [OCC-Handbook], [SR11-7].', 'rol"}, {"index": 3, "reward": 0.0, "tags": ["general"], "question": "[{'content': 'Answer as a bank supervision analyst. Always use <think>..</think>, then <answer>..</answer>, then <citations>..</citations>. Only cite\\napproved tokens: [OCC-Handbook], [SR11-7].', 'rol"}, {"index": 5, "reward": 0.0, "tags": ["general"], "question": "[{'content': 'Answer as a bank supervision analyst. Always use <think>..</think>, then <answer>..</answer>, then <citations>..</citations>. Only cite\\napproved tokens: [OCC-Handbook], [SR11-7].', 'rol"}], "mean": 0.25, "std": 0.433, "min": 0.0, "max": 1.0, "median": 0.0};
+function elt(tag, attrs={}, text='') {
+  const e = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (text) e.textContent = text;
+  return e;
+}
+
+function drawHistogram(containerId, values) {
+  const bins = 10, w=460, h=220, pad=24;
+  const counts = Array(bins).fill(0);
+  values.forEach(v => { const i = Math.min(bins-1, Math.max(0, Math.floor(v*bins))); counts[i]++; });
+  const maxc = Math.max(...counts,1);
+  const c = document.getElementById(containerId);
+  c.innerHTML='';
+  const svgNS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(svgNS,'svg'); svg.setAttribute('width', w); svg.setAttribute('height', h);
+  const barw=(w-2*pad)/bins;
+  counts.forEach((cnt,i)=>{
+    const bh=(h-2*pad)*(cnt/maxc);
+    const rect=document.createElementNS(svgNS,'rect');
+    rect.setAttribute('x', pad+i*barw);
+    rect.setAttribute('y', h-pad-bh);
+    rect.setAttribute('width', barw-2);
+    rect.setAttribute('height', bh);
+    rect.setAttribute('fill', '#4C78A8');
+    svg.appendChild(rect);
+  });
+  c.appendChild(svg);
+}
+
+function drawLine(containerId, values) {
+  const w=460, h=220, pad=24;
+  const c=document.getElementById(containerId); c.innerHTML='';
+  const svgNS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(svgNS,'svg'); svg.setAttribute('width',w); svg.setAttribute('height',h);
+  const n=values.length;
+  const pts = values.map((v,i)=>[pad + (i*(w-2*pad)/(Math.max(1,n-1))), h-pad - v*(h-2*pad)]);
+  for (let i=1;i<pts.length;i++){
+    const [x1,y1]=pts[i-1], [x2,y2]=pts[i];
+    const l=document.createElementNS(svgNS,'line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke','#F58518'); l.setAttribute('stroke-width','2'); svg.appendChild(l);
+  }
+  pts.forEach(([x,y])=>{
+    const dot=document.createElementNS(svgNS,'circle'); dot.setAttribute('cx',x); dot.setAttribute('cy',y); dot.setAttribute('r',2.5); dot.setAttribute('fill','#F58518'); svg.appendChild(dot);
+  });
+  c.appendChild(svg);
+}
+
+function fillWorst(tableId, worst) {
+  const tbody=document.getElementById(tableId);
+  worst.forEach(w=>{
+    const tr=elt('tr');
+    tr.appendChild(elt('td',{}, String(w.index)));
+    tr.appendChild(elt('td',{}, String(w.reward)));
+    const tags=Array.isArray(w.tags)? w.tags.join(', '):String(w.tags||'');
+    tr.appendChild(elt('td',{}, tags));
+    tr.appendChild(elt('td',{}, w.question));
+    tbody.appendChild(tr);
+  });
+}
+
+function drawTags(containerId, tagAvgs) {
+  const root=document.getElementById(containerId);
+  if (!tagAvgs || !tagAvgs.length) { root.textContent='(no tags)'; return; }
+  tagAvgs.forEach(([label, avg, count])=>{
+    const row=elt('div',{class:'tagrow'});
+    const l=elt('div',{class:'taglabel'}, label);
+    const bar=elt('div',{class:'tagbar'});
+    bar.style.width = (Math.max(0,Math.min(1,avg))*100)+'%';
+    const badge=elt('span',{class:'badge'}, String(count));
+    row.appendChild(l); row.appendChild(bar); row.appendChild(badge);
+    root.appendChild(row);
+  });
+}
+
+drawHistogram('hist', data.rewards);
+drawLine('line', data.rewards);
+fillWorst('worst', data.worst);
+drawTags('tags', data.tag_avgs);
+</script>
+</body></html>

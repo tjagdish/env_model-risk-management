@@ -123,6 +123,29 @@ Generation settings (for your model/policy):
 
 Judge (for evaluation): freeze model + params (temp 0, top_p 1) and cap concurrency; if no judge is configured, only deterministic scores are reported.
 
+## Judge-only Examples
+
+- gpt-5-nano as policy; gpt-5 as judge (with provider fields):
+
+```bash
+uv run vf-eval banking-mrm \
+  -m gpt-5-nano \
+  -n 20 -r 1 -t 256 \
+  -S '{"response_format":{"type":"text"},"verbosity":"medium","reasoning_effort":"medium"}' \
+  -a '{"eval_recipe":"judge_only","judge_model_name":"gpt-5","judge_sampling_args":{"response_format":{"type":"text"},"verbosity":"medium","reasoning_effort":"medium"}}' \
+  -s
+```
+
+- gpt-4o-mini as policy; gpt-5 as judge (baseline comparison):
+
+```bash
+uv run vf-eval banking-mrm \
+  -m gpt-4o-mini \
+  -n 20 -r 1 -t 256 \
+  -a '{"eval_recipe":"judge_only","judge_model_name":"gpt-5"}' \
+  -s
+```
+
 ## Disclaimer
 
 This environment benchmarks model risk management knowledge grounded in SR 11‑7 and the OCC Model Risk Management Comptroller’s Handbook. It is for educational and evaluation purposes only and does not constitute supervisory guidance or advice.

@@ -29,6 +29,11 @@ ENDPOINTS = {
         "url": "https://api.openai.com/v1",
         "key": "OPENAI_API_KEY",
     },
+    "gpt-5-nano": {
+        "model": "gpt-5-nano",
+        "url": "https://api.openai.com/v1",
+        "key": "OPENAI_API_KEY",
+    },
 
     # Local OpenAI-compatible server (LM Studio default)
     # Start LM Studio’s server and download a small instruct model first.
@@ -44,4 +49,3 @@ ENDPOINTS = {
         "key": "LMSTUDIO_API_KEY",
     },
 }
-

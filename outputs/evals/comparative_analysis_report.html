@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparative Analysis: GPT-5 vs GPT-5-nano - Banking MRM Evaluation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        h2 {
+            color: #2a5298;
+            margin: 30px 0 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #e0e6ed;
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            color: #4a5568;
+            margin: 20px 0 10px;
+            font-size: 1.3em;
+        }
+        
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .model-section {
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .model-section.gpt5 {
+            border-color: #38ef7d;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+        }
+        
+        .model-section.gpt5nano {
+            border-color: #f5576c;
+            background: linear-gradient(135deg, #fef2f2 0%, #fef7f7 100%);
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .metric-card.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .metric-card.warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .metric-card.info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        
+        .performance-bar {
+            height: 30px;
+            background: #e0e6ed;
+            border-radius: 15px;
+            margin: 10px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .performance-fill {
+            height: 100%;
+            border-radius: 15px;
+            transition: width 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .performance-fill.gpt5 {
+            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .performance-fill.gpt5nano {
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e6ed;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        
+        .badge-easy {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-medium {
+            background-color: #fed7aa;
+            color: #92400e;
+        }
+        
+        .badge-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-failure {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .critical-finding {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .critical-finding h3 {
+            color: #d97706;
+            margin-bottom: 10px;
+        }
+        
+        .improvement-highlight {
+            background: #dcfce7;
+            border: 2px solid #16a34a;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .improvement-highlight h3 {
+            color: #15803d;
+            margin-bottom: 10px;
+        }
+        
+        .degradation-highlight {
+            background: #fecaca;
+            border: 2px solid #dc2626;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .degradation-highlight h3 {
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+        
+        .question-comparison {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .question-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+        
+        .model-result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .model-name {
+            font-weight: 500;
+        }
+        
+        .result-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .result-success {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        
+        .result-failure {
+            background: #fecaca;
+            color: #dc2626;
+        }
+        
+        .insight-box {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #7c2d12;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #718096;
+            font-size: 0.9em;
+        }
+        
+        .vs-divider {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        
+        .trend-indicator {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 1.2em;
+        }
+        
+        .trend-up {
+            color: #16a34a;
+        }
+        
+        .trend-down {
+            color: #dc2626;
+        }
+        
+        .trend-same {
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Comparative Model Analysis</h1>
+            <p class="subtitle">GPT-5 vs GPT-5-nano Performance on Banking MRM Questions</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Executive Summary -->
+        <section class="card">
+            <h2>Executive Summary</h2>
+            <p>This comparative analysis examines the performance of GPT-5 and GPT-5-nano on the same banking model risk management evaluation. Both models faced similar technical issues with empty completions, but showed different reward patterns.</p>
+            
+            <div class="critical-finding">
+                <h3>🚨 Persistent Critical Issue</h3>
+                <p><strong>Both models produced empty completions for all 20 questions</strong>, indicating a systemic problem in the evaluation framework rather than model-specific issues. However, the reward patterns differ significantly between models.</p>
+            </div>
+        </section>
+        
+        <!-- Head-to-Head Comparison -->
+        <section class="card">
+            <h2>Head-to-Head Performance Comparison</h2>
+            
+            <div class="comparison-grid">
+                <div class="model-section gpt5">
+                    <h3>GPT-5 (Full Model)</h3>
+                    <div class="metric-grid">
+                        <div class="metric-card warning">
+                            <div class="metric-label">Success Rate</div>
+                            <div class="metric-value">15%</div>
+                            <div class="metric-label">3 out of 20</div>
+                        </div>
+                        <div class="metric-card warning">
+                            <div class="metric-label">Average Reward</div>
+                            <div class="metric-value">0.15</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Performance by Difficulty:</h4>
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Easy Questions (16)</span>
+                            <span>3/16 (18.75%)</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill gpt5" style="width: 18.75%;">18.75%</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Medium Questions (4)</span>
+                            <span>0/4 (0%)</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill gpt5" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="model-section gpt5nano">
+                    <h3>GPT-5-nano</h3>
+                    <div class="metric-grid">
+                        <div class="metric-card success">
+                            <div class="metric-label">Success Rate</div>
+                            <div class="metric-value">25%</div>
+                            <div class="metric-label">5 out of 20</div>
+                        </div>
+                        <div class="metric-card success">
+                            <div class="metric-label">Average Reward</div>
+                            <div class="metric-value">0.25</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Performance by Difficulty:</h4>
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Easy Questions (16)</span>
+                            <span>5/16 (31.25%)</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill gpt5nano" style="width: 31.25%;">31.25%</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Medium Questions (4)</span>
+                            <span>0/4 (0%)</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill gpt5nano" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="vs-divider">VS</div>
+            
+            <div class="degradation-highlight">
+                <h3>📉 Surprising Performance Gap</h3>
+                <p><strong>GPT-5-nano outperformed GPT-5</strong> by 10 percentage points (25% vs 15% success rate). This counterintuitive result suggests either:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Different evaluation timestamps may have introduced variability</li>
+                    <li>The reward assignment mechanism may be inconsistent</li>
+                    <li>The "nano" model may have different behavior patterns that align better with the evaluation criteria</li>
+                    <li>Random variation in a broken evaluation system</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Detailed Question-by-Question Analysis -->
+        <section class="card">
+            <h2>Question-by-Question Performance Comparison</h2>
+            
+            <h3>GPT-5 Successful Questions (3 total):</h3>
+            <div class="question-comparison">
+                <div class="question-header">Question #2 (ID: 2) - Medium Difficulty ✅</div>
+                <div class="model-result">
+                    <span class="model-name">Topic: Model risk management scope comparison</span>
+                    <span class="result-badge result-success">GPT-5: SUCCESS</span>
+                </div>
+                <div class="model-result">
+                    <span class="model-name">GPT-5-nano</span>
+                    <span class="result-badge result-failure">FAILED</span>
+                </div>
+            </div>
+            
+            <div class="question-comparison">
+                <div class="question-header">Question #11 (ID: 11) - Easy Difficulty ✅</div>
+                <div class="model-result">
+                    <span class="model-name">Topic: Managing residual model risk</span>
+                    <span class="result-badge result-success">GPT-5: SUCCESS</span>
+                </div>
+                <div class="model-result">
+                    <span class="model-name">GPT-5-nano</span>
+                    <span class="result-badge result-failure">FAILED</span>
+                </div>
+            </div>
+            
+            <div class="question-comparison">
+                <div class="question-header">Question #12 (ID: 12) - Medium Difficulty ✅</div>
+                <div class="model-result">
+                    <span class="model-name">Topic: Model development complexity</span>
+                    <span class="result-badge result-success">GPT-5: SUCCESS</span>
+                </div>
+                <div class="model-result">
+                    <span class="model-name">GPT-5-nano</span>
+                    <span class="result-badge result-failure">FAILED</span>
+                </div>
+            </div>
+            
+            <h3>GPT-5-nano Exclusive Successes (2 additional):</h3>
+            <div class="question-comparison">
+                <div class="question-header">Question #4 (ID: 4) - Easy Difficulty</div>
+                <div class="model-result">
+                    <span class="model-name">Topic: Expert judgment tools as models</span>
+                    <span class="result-badge result-failure">GPT-5: FAILED</span>
+                </div>
+                <div class="model-result">
+                    <span class="model-name">GPT-5-nano</span>
+                    <span class="result-badge result-success">SUCCESS</span>
+                </div>
+            </div>
+            
+            <div class="question-comparison">
+                <div class="question-header">Question #8 (ID: 8) - Medium Difficulty</div>
+                <div class="model-result">
+                    <span class="model-name">Topic: Model risk factors and aggregate risk</span>
+                    <span class="result-badge result-failure">GPT-5: FAILED</span>
+                </div>
+                <div class="model-result">
+                    <span class="model-name">GPT-5-nano</span>
+                    <span class="result-badge result-success">SUCCESS</span>
+                </div>
+            </div>
+            
+            <div class="question-comparison">
+                <div class="question-header">Question #9 (ID: 9) - Easy Difficulty</div>
+                <div class="model-result">
+                    <span class="model-name">Topic: Effective challenge concept</span>
+                    <span class="result-badge result-failure">GPT-5: FAILED</span>
+                </div>
+                <div class="model-result">
+                    <span class="model-name">GPT-5-nano</span>
+                    <span class="result-badge result-success">SUCCESS</span>
+                </div>
+            </div>
+            
+            <div class="question-comparison">
+                <div class="question-header">Question #10 (ID: 10) - Easy Difficulty</div>
+                <div class="model-result">
+                    <span class="model-name">Topic: Model misuse risks</span>
+                    <span class="result-badge result-failure">GPT-5: FAILED</span>
+                </div>
+                <div class="model-result">
+                    <span class="model-name">GPT-5-nano</span>
+                    <span class="result-badge result-success">SUCCESS</span>
+                </div>
+            </div>
+            
+            <div class="question-comparison">
+                <div class="question-header">Question #16 (ID: 16) - Easy Difficulty</div>
+                <div class="model-result">
+                    <span class="model-name">Topic: Data standards for model development</span>
+                    <span class="result-badge result-failure">GPT-5: FAILED</span>
+                </div>
+                <div class="model-result">
+                    <span class="model-name">GPT-5-nano</span>
+                    <span class="result-badge result-success">SUCCESS</span>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Performance Trends -->
+        <section class="card">
+            <h2>Performance Trends & Patterns</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>GPT-5</th>
+                        <th>GPT-5-nano</th>
+                        <th>Trend</th>
+                        <th>Analysis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Overall Success Rate</td>
+                        <td>15% (3/20)</td>
+                        <td>25% (5/20)</td>
+                        <td><span class="trend-indicator trend-down">↓ 10pp</span></td>
+                        <td>GPT-5 performed worse than nano variant</td>
+                    </tr>
+                    <tr>
+                        <td>Easy Questions</td>
+                        <td>18.75% (3/16)</td>
+                        <td>31.25% (5/16)</td>
+                        <td><span class="trend-indicator trend-down">↓ 12.5pp</span></td>
+                        <td>Significant gap on basic questions</td>
+                    </tr>
+                    <tr>
+                        <td>Medium Questions</td>
+                        <td>0% (0/4)</td>
+                        <td>0% (0/4)</td>
+                        <td><span class="trend-indicator trend-same">→ 0pp</span></td>
+                        <td>Both models failed all medium questions</td>
+                    </tr>
+                    <tr>
+                        <td>LLM Judge Agreement</td>
+                        <td>100%</td>
+                        <td>100%</td>
+                        <td><span class="trend-indicator trend-same">→ 0pp</span></td>
+                        <td>Perfect alignment in both cases</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="insight-box">
+                <h3>🔍 Key Pattern Analysis</h3>
+                <ul style="margin-left: 20px;">
+                    <li><strong>No Overlap in Success:</strong> The models succeeded on completely different questions, suggesting high variability in the evaluation process</li>
+                    <li><strong>Medium Question Failure:</strong> Both models failed all medium-difficulty questions, indicating a systematic challenge with more complex scenarios</li>
+                    <li><strong>Counterintuitive Performance:</strong> The nano model outperforming the full model contradicts expected behavior</li>
+                    <li><strong>Empty Completions:</strong> Both models produced no actual content, making the reward assignments highly suspect</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Topic Performance Analysis -->
+        <section class="card">
+            <h2>Topic-Based Performance Analysis</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Topic Category</th>
+                        <th>Total Questions</th>
+                        <th>GPT-5 Success</th>
+                        <th>GPT-5-nano Success</th>
+                        <th>Best Performer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>General MRM Concepts</td>
+                        <td>14</td>
+                        <td>2/14 (14.3%)</td>
+                        <td>5/14 (35.7%)</td>
+                        <td><span class="badge badge-success">GPT-5-nano</span></td>
+                    </tr>
+                    <tr>
+                        <td>Model Validation</td>
+                        <td>2</td>
+                        <td>1/2 (50%)</td>
+                        <td>0/2 (0%)</td>
+                        <td><span class="badge badge-success">GPT-5</span></td>
+                    </tr>
+                    <tr>
+                        <td>Documentation & Inventory</td>
+                        <td>1</td>
+                        <td>0/1 (0%)</td>
+                        <td>0/1 (0%)</td>
+                        <td><span class="badge">Tie</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- System Issues Analysis -->
+        <section class="card">
+            <h2>Systematic Issues Identified</h2>
+            
+            <div class="critical-finding">
+                <h3>🔧 Evaluation Framework Problems</h3>
+                <p>The consistent pattern of empty completions across both models, combined with different reward patterns, strongly suggests:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>API/Deployment Issues:</strong> Models may not be generating any output</li>
+                    <li><strong>Logging Pipeline Failure:</strong> Completions may be generated but not captured</li>
+                    <li><strong>Reward System Inconsistency:</strong> Different reward patterns for identical (empty) outputs</li>
+                    <li><strong>Evaluation Timing Effects:</strong> 12-minute gap between evaluations (01:16:39 vs 01:28:01) may have introduced variability</li>
+                </ul>
+            </div>
+            
+            <div class="critical-finding">
+                <h3>⚙️ Configuration Similarities</h3>
+                <p>Both models used identical configuration parameters:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Max tokens: 256 (potentially insufficient)</li>
+                    <li>Single rollout per question</li>
+                    <li>Same environment and date</li>
+                    <li>Identical prompt structure requirements</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Recommendations -->
+        <section class="card">
+            <h2>Comparative Analysis Recommendations</h2>
+            
+            <div class="improvement-highlight">
+                <h3>🎯 Immediate Actions Required</h3>
+                <ol style="margin-left: 20px;">
+                    <li><strong>Investigate Evaluation Framework:</strong> The empty completions across both models indicate a systemic issue</li>
+                    <li><strong>Validate Reward Assignment Logic:</strong> Understand why different models received different rewards for identical (empty) outputs</li>
+                    <li><strong>Increase Max Tokens:</strong> 256 tokens may be insufficient for the required format with thinking, answer, and citations</li>
+                    <li><strong>Implement Real-time Monitoring:</strong> Add completion validation during evaluation runs</li>
+                    <li><strong>Re-run Both Evaluations:</strong> Once issues are fixed, conduct simultaneous evaluations for fair comparison</li>
+                </ol>
+            </div>
+            
+            <div class="improvement-highlight">
+                <h3>🔬 Enhanced Evaluation Protocol</h3>
+                <ul style="margin-left: 20px;">
+                    <li>Run multiple rollouts per question to reduce variance</li>
+                    <li>Implement checkpoint saves during evaluation</li>
+                    <li>Add completion format validation</li>
+                    <li>Include intermediate model outputs for debugging</li>
+                    <li>Establish baseline tests before full evaluations</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Conclusion -->
+        <section class="card">
+            <h2>Conclusion</h2>
+            <p>This comparative analysis reveals that both GPT-5 and GPT-5-nano face identical technical issues preventing proper evaluation. The counterintuitive performance difference (nano outperforming the full model) combined with universal empty completions indicates fundamental problems in the evaluation infrastructure.</p>
+            
+            <div class="critical-finding">
+                <h3>⚠️ Critical Assessment</h3>
+                <p><strong>No reliable conclusions can be drawn about relative model performance</strong> until the underlying technical issues are resolved. The evaluation framework requires immediate attention before any meaningful model comparisons can be conducted.</p>
+            </div>
+            
+            <p style="margin-top: 20px;"><strong>Priority Actions:</strong></p>
+            <ol style="margin-left: 20px; margin-top: 10px;">
+                <li>Fix the completion generation/capture pipeline</li>
+                <li>Standardize and validate the reward assignment mechanism</li>
+                <li>Implement proper monitoring and validation</li>
+                <li>Re-evaluate both models under controlled conditions</li>
+                <li>Establish performance baselines for banking MRM domain</li>
+            </ol>
+        </section>
+    </div>
+    
+    <footer class="footer">
+        <p>Comparative Banking MRM Analysis - Generated on <script>document.write(new Date().toLocaleDateString());</script></p>
+        <p>GPT-5 Evaluation ID: b5e2beec | GPT-5-nano Evaluation ID: 8e5dc923</p>
+    </footer>
+</body>
+</html>
