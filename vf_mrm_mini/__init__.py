@@ -286,13 +286,17 @@ def load_environment(
     # 4) Judge rubric: uses an LLM to check semantic correctness
     judge_prompt = (
         "You are grading a short bank supervision answer against the provided\n"
-        "canonical answer and info. Return a score in [0.0, 1.0] ONLY, then a\n"
-        "brief justification on a new line.\n"
-        "Full credit only if the answer is factually correct, captures the key\n"
-        "points of the canonical answer, and avoids unsupported claims.\n"
-        "Ground truth sources are SR 11-7 and the OCC Model Risk Management\n"
-        "Comptroller’s Handbook. Treat statements not grounded in these sources\n"
-        "as errors. Penalize missing required XML tags or irrelevant citations."
+        "canonical answer and info. Score the response’s factual correctness,\n"
+        "coverage of key points, and avoidance of unsupported claims. Grounding\n"
+        "sources: SR 11-7 and the OCC Model Risk Management Comptroller’s Handbook.\n\n"
+        "Question:\n{question}\n\n"
+        "Canonical answer:\n{answer}\n\n"
+        "Model answer:\n{response}\n\n"
+        "Output format:\n"
+        "<score in [0.0, 1.0]>\n"
+        "<one-sentence justification>\n\n"
+        "Deduct for statements not supported by SR 11-7/OCC MRM, missing required\n"
+        "structure (tags), or irrelevant citations."
     )
     judge = vf.JudgeRubric(parser=parser, judge_model=(judge_model_name or "gpt-4.1-nano"), judge_prompt=judge_prompt)
     judge_reward_func = _make_llm_judge_reward(judge)
