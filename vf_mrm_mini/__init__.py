@@ -110,6 +110,61 @@ def _allowed_citations_only_reward(completion: List[Dict[str, Any]], **_: Any) -
     return 1.0 if set(cited).issubset(allowed) else 0.0
 
 
+def _extract_float_score(text: str) -> float:
+    """Extract a numeric score from judge text; map yes/no if present.
+
+    Returns a float in [0, 1]. If the first number found is in [0, 10],
+    it is scaled to [0, 1] when > 1. Missing/invalid -> 0.0.
+    """
+    t = (text or "").strip().lower()
+    if "yes" in t and "no" not in t and not re.search(r"\d", t):
+        return 1.0
+    if "no" in t and "yes" not in t and not re.search(r"\d", t):
+        return 0.0
+    m = re.search(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?", t)
+    if not m:
+        return 0.0
+    try:
+        val = float(m.group(0))
+    except Exception:
+        return 0.0
+    # Normalize likely 0-10 scores to 0-1
+    if val > 1.0:
+        if val <= 10.0:
+            val = val / 10.0
+        else:
+            # Out-of-range; clamp
+            val = 1.0
+    return max(0.0, min(1.0, val))
+
+
+def _make_llm_judge_reward(judge_obj: vf.Rubric) -> Any:
+    """Create an async reward function that calls a JudgeRubric.judge and returns float.
+
+    The underlying JudgeRubric.judge returns a string; we parse to [0,1].
+    """
+
+    async def _judge_reward(prompt: List[Dict[str, str]] | str,
+                            completion: List[Dict[str, str]] | str,
+                            answer: str,
+                            state: Dict[str, Any],
+                            **kwargs: Any) -> float:
+        # Access the coroutine method `judge` on the provided judge object.
+        try:
+            resp = await judge_obj.judge(
+                prompt=prompt,
+                completion=completion,
+                answer=answer,
+                state=state,
+            )
+        except Exception as e:
+            return 0.0
+        return _extract_float_score(str(resp))
+
+    _judge_reward.__name__ = "llm_judge_reward"
+    return _judge_reward
+
+
 def _load_samples(split: str | None = None, limit: Optional[int] = None) -> List[Dict[str, Any]]:
     """Load question–answer pairs from the packaged JSONL file.
 
@@ -231,33 +286,33 @@ def load_environment(
     # 4) Judge rubric: uses an LLM to check semantic correctness
     judge_prompt = (
         "You are grading a short bank supervision answer against the provided\n"
-        "canonical answer and info. Score between 0.0 and 1.0.\n"
-        "Ground truth sources are limited to SR 11-7 and the OCC Model Risk\n"
-        "Management Comptroller’s Handbook. Give full credit only if the answer\n"
-        "is factually correct, captures the key points of the canonical answer,\n"
-        "and avoids unsupported claims. Treat any statements not grounded in\n"
-        "the cited sources as errors. If the required XML tags are missing or\n"
-        "citations are irrelevant/absent, reduce the score. Return only a\n"
-        "floating point score and a brief justification."
+        "canonical answer and info. Return a score in [0.0, 1.0] ONLY, then a\n"
+        "brief justification on a new line.\n"
+        "Full credit only if the answer is factually correct, captures the key\n"
+        "points of the canonical answer, and avoids unsupported claims.\n"
+        "Ground truth sources are SR 11-7 and the OCC Model Risk Management\n"
+        "Comptroller’s Handbook. Treat statements not grounded in these sources\n"
+        "as errors. Penalize missing required XML tags or irrelevant citations."
     )
-    judge = vf.JudgeRubric(judge_prompt=judge_prompt, model_name=judge_model_name)
+    judge = vf.JudgeRubric(parser=parser, judge_model=(judge_model_name or "gpt-4.1-nano"), judge_prompt=judge_prompt)
+    judge_reward_func = _make_llm_judge_reward(judge)
 
     # 5) Assemble environment
     # Choose scoring recipe
     rubrics: List[vf.Rubric]
     recipe = (eval_recipe or "deterministic").lower()
     if recipe == "judge_only":
-        # Judge-only holistic scoring (wrap judge so it contributes to reward)
-        rubrics = [vf.Rubric(funcs=[judge], weights=[judge_weight], parser=parser)]
+        # Judge-only holistic scoring
+        rubrics = [vf.Rubric(funcs=[judge_reward_func], weights=[judge_weight], parser=parser)]
     elif recipe == "hybrid":
-        # Slight compliance presence + dominant judge (always wrap judge)
-        j = vf.Rubric(funcs=[judge], weights=[judge_weight], parser=parser)
+        # Slight compliance presence + dominant judge
+        j = vf.Rubric(funcs=[judge_reward_func], weights=[judge_weight], parser=parser)
         rubrics = [light_compliance, j]
     else:
         # Deterministic by default; optionally include judge if requested
         rubrics = [base_rubric]
         if use_judge:
-            j = vf.Rubric(funcs=[judge], weights=[judge_weight], parser=parser)
+            j = vf.Rubric(funcs=[judge_reward_func], weights=[judge_weight], parser=parser)
             rubrics.append(j)
 
     env = vf.SingleTurnEnv(
