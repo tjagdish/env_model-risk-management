@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "vf_mrm_mini"
+name = "banking-mrm"
 version = "0.1.2"
 description = "Banking Model Risk Management: RL and evaluation environment for SR 11-7 and OCC MRM"
 readme = "README.md"
