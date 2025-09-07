@@ -17,7 +17,7 @@ keywords = ["verifiers", "environment", "banking", "model-risk", "OCC", "SR11-7"
 
 [tool.vf]
 # Unique identifier for the environment when published to Prime Intellect’s hub
-id = "vf-mrm-mini"
+id = "banking-model-risk-management"
 # Tags help others discover the environment
 tags = [
     "model-risk",
