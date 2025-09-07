@@ -69,7 +69,7 @@ env = mrm.load_environment(use_judge=False)  # deterministic, rule-based RL
 CLI sanity eval (rule + judge if configured):
 
 ```bash
-uv run vf-eval vf-mrm-mini -n 12 -r 2
+uv run vf-eval banking-mrm -n 12 -r 2
 ```
 
 ## Scoring
@@ -109,6 +109,11 @@ Reasons: unapproved token; blanket annual rule not supported by SR 11‑7; vague
 - Lint data: `python scripts/validate_dataset.py`
 - Evaluate: `uv run vf-eval vf-mrm-mini -n 12 -r 2`
 - Baseline: `python scripts/baseline_policy.py "What is model risk?"`
+
+Implementation note: package names
+- Hub/CLI ID: `tanush/banking-mrm` (install with `prime env install tanush/banking-mrm`).
+- Python import via env loader: `load_environment('banking-mrm')` (hyphenated).
+- Python module: either `import banking_mrm` (shim) or `import vf_mrm_mini` (full implementation).
 
 Generation settings (for your model/policy):
 - Stop sequences: `</citations>`
