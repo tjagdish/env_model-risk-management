@@ -1,4 +1,4 @@
-# vf_mrm_mini
+# Banking Model Risk Management (vf_mrm_mini)
 
 Minimal RL and evaluation environment for model risk management (MRM). It trains and evaluates models on short questions grounded in SR 11‑7 and the OCC Model Risk Management Comptroller’s Handbook. The environment follows the `verifiers` framework and runs locally for deterministic RL and judge‑based evaluation.
 

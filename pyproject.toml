@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vf_mrm_mini"
-version = "0.1.1"
-description = "Mini reinforcement-learning environment for model risk management Q&A"
+version = "0.1.2"
+description = "Banking Model Risk Management: RL and evaluation environment for SR 11-7 and OCC MRM"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
@@ -13,7 +13,7 @@ dependencies = [
     "verifiers>=0.1.1",
     "datasets>=2.18.0",
 ]
-keywords = ["verifiers", "environment", "prime", "model-risk", "OCC", "SR11-7"]
+keywords = ["verifiers", "environment", "banking", "model-risk", "OCC", "SR11-7", "MRM"]
 
 [tool.vf]
 # Unique identifier for the environment when published to Prime Intellect’s hub
@@ -22,9 +22,14 @@ id = "vf-mrm-mini"
 tags = [
     "model-risk",
     "bank-supervision",
+    "banking",
+    "mrm",
+    "governance",
+    "validation",
     "citations",
     "single-turn",
 ]
+title = "Banking Model Risk Management"
 
 [tool.hatch.build]
 include = [
