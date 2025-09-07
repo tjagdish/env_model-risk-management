@@ -180,7 +180,30 @@ def load_environment(
     """
     # 1) Load the dataset
     samples = _load_samples(split=split, limit=limit)
-    dataset = Dataset.from_list(samples)
+
+    # Build the system prompt string once. We will embed it into each example's
+    # message list to satisfy verifiers' MultiTurnEnv rollout interface, which
+    # expects `prompt` to be a list of role/content messages.
+    allowed_tokens = _load_allowed_citation_tokens()
+    allowed_tokens_str = ", ".join(allowed_tokens) if allowed_tokens else "[SR11-7], [OCC-Handbook]"
+    system_prompt_str = (
+        "Answer as a bank supervision analyst. Always use <think>..</think>,"
+        " then <answer>..</answer>, then <citations>..</citations>. Only cite\n"
+        f"approved tokens: {allowed_tokens_str}."
+    )
+
+    prepared_samples = []
+    for s in samples:
+        user_prompt = s.get("prompt", "")
+        messages = [
+            {"role": "system", "content": system_prompt_str},
+            {"role": "user", "content": user_prompt},
+        ]
+        new_s = dict(s)
+        new_s["prompt"] = messages
+        prepared_samples.append(new_s)
+
+    dataset = Dataset.from_list(prepared_samples)
 
     # 2) Parser enforces the <think>, <answer>, <citations> tags
     parser = vf.XMLParser(fields=["think", "answer", "citations"], answer_field="answer")
@@ -194,6 +217,7 @@ def load_environment(
             _length_reward,
         ],
         weights=[0.2, 0.5, 0.2, 0.1],
+        parser=parser,
     )
 
     # 4) Judge rubric: uses an LLM to check semantic correctness
@@ -218,18 +242,11 @@ def load_environment(
             judge = vf.Rubric(funcs=[judge], weights=[judge_weight])  # lightweight wrapper
         rubrics.append(judge)
 
-    allowed_tokens = _load_allowed_citation_tokens()
-    allowed_tokens_str = ", ".join(allowed_tokens) if allowed_tokens else "[SR11-7], [OCC-Handbook]"
-
     env = vf.SingleTurnEnv(
         dataset=dataset,
         parser=parser,
         rubric=vf.RubricGroup(rubrics),
-        system_prompt=(
-            "Answer as a bank supervision analyst. Always use <think>..</think>,"
-            " then <answer>..</answer>, then <citations>..</citations>. Only cite\n"
-            f"approved tokens: {allowed_tokens_str}."
-        ),
+        system_prompt=None,  # embedded directly in each example's messages
         **kwargs,
     )
     return env
