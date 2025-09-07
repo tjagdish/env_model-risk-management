@@ -247,17 +247,17 @@ def load_environment(
     rubrics: List[vf.Rubric]
     recipe = (eval_recipe or "deterministic").lower()
     if recipe == "judge_only":
-        # Judge-only holistic scoring
-        rubrics = [judge]
+        # Judge-only holistic scoring (wrap judge so it contributes to reward)
+        rubrics = [vf.Rubric(funcs=[judge], weights=[judge_weight], parser=parser)]
     elif recipe == "hybrid":
-        # Slight compliance presence + dominant judge
-        j = judge if judge_weight == 1.0 else vf.Rubric(funcs=[judge], weights=[judge_weight])
+        # Slight compliance presence + dominant judge (always wrap judge)
+        j = vf.Rubric(funcs=[judge], weights=[judge_weight], parser=parser)
         rubrics = [light_compliance, j]
     else:
         # Deterministic by default; optionally include judge if requested
         rubrics = [base_rubric]
         if use_judge:
-            j = judge if judge_weight == 1.0 else vf.Rubric(funcs=[judge], weights=[judge_weight])
+            j = vf.Rubric(funcs=[judge], weights=[judge_weight], parser=parser)
             rubrics.append(j)
 
     env = vf.SingleTurnEnv(
