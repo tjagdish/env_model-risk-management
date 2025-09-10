@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "banking-mrm"
-version = "0.1.4"
+version = "0.1.5"
 description = "Banking Model Risk Management: RL and evaluation environment for SR 11-7 and OCC MRM"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -37,5 +37,8 @@ include = [
   "banking_mrm/**/*.py",
   "vf_mrm_mini/data/*.jsonl",
   "vf_mrm_mini/data/*.json",
+  "outputs/evals/**/*.json",
+  "outputs/evals/**/*.jsonl",
+  "outputs/evals/**/*.html",
   "README.md",
 ]
