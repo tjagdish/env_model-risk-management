@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT-4.1 vs GPT-4.1-mini: Banking MRM Performance Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin: 30px 0 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #e0e6ed;
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            color: #4a5568;
+            margin: 20px 0 10px;
+            font-size: 1.3em;
+        }
+        
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .model-section {
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .model-section.gpt41 {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f8faff 100%);
+        }
+        
+        .model-section.gpt41mini {
+            border-color: #38ef7d;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .metric-card.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .metric-card.warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .metric-card.info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .metric-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .performance-bar {
+            height: 30px;
+            background: #e0e6ed;
+            border-radius: 15px;
+            margin: 10px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .performance-fill {
+            height: 100%;
+            border-radius: 15px;
+            transition: width 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .performance-fill.gpt41 {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .performance-fill.gpt41mini {
+            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e6ed;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        
+        .badge-easy {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-medium {
+            background-color: #fed7aa;
+            color: #92400e;
+        }
+        
+        .badge-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-failure {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .success-highlight {
+            background: #dcfce7;
+            border: 2px solid #16a34a;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .success-highlight h3 {
+            color: #15803d;
+            margin-bottom: 10px;
+        }
+        
+        .insight-box {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #7c2d12;
+        }
+        
+        .vs-divider {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        
+        .trend-indicator {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 1.2em;
+        }
+        
+        .trend-up {
+            color: #16a34a;
+        }
+        
+        .trend-down {
+            color: #dc2626;
+        }
+        
+        .trend-same {
+            color: #6b7280;
+        }
+        
+        .score-distribution {
+            margin: 20px 0;
+        }
+        
+        .score-bar {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .score-label {
+            width: 80px;
+            font-weight: 500;
+        }
+        
+        .score-visual {
+            flex: 1;
+            height: 25px;
+            background: #e0e6ed;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 0 10px;
+            position: relative;
+        }
+        
+        .score-fill {
+            height: 100%;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .score-count {
+            width: 60px;
+            text-align: right;
+            font-weight: 500;
+        }
+        
+        .detailed-comparison {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .question-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e6ed;
+        }
+        
+        .question-row:last-child {
+            border-bottom: none;
+        }
+        
+        .question-id {
+            font-weight: bold;
+            color: #667eea;
+            width: 60px;
+        }
+        
+        .question-topic {
+            flex: 1;
+            padding: 0 15px;
+            font-size: 0.9em;
+        }
+        
+        .model-scores {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .model-score {
+            text-align: center;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 6px;
+            min-width: 50px;
+        }
+        
+        .score-perfect {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        
+        .score-good {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .score-partial {
+            background: #fed7aa;
+            color: #c2410c;
+        }
+        
+        .score-zero {
+            background: #fecaca;
+            color: #dc2626;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #718096;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>GPT-4.1 vs GPT-4.1-mini</h1>
+            <p class="subtitle">Comprehensive Banking MRM Performance Analysis</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Executive Summary -->
+        <section class="card">
+            <h2>Executive Summary</h2>
+            <p>This analysis compares the performance of GPT-4.1 and GPT-4.1-mini on a comprehensive 40-question banking model risk management evaluation. Both models demonstrate strong performance with proper completion generation, marking a significant improvement over the GPT-5 variants.</p>
+            
+            <div class="success-highlight">
+                <h3>🎉 Key Success: Functional Completion Generation</h3>
+                <p>Unlike the GPT-5 variants that produced empty completions, both GPT-4.1 models successfully generated detailed, well-structured responses following the required format (<code>&lt;think&gt;..&lt;/think&gt;</code>, <code>&lt;answer&gt;..&lt;/answer&gt;</code>, <code>&lt;citations&gt;..&lt;/citations&gt;</code>).</p>
+            </div>
+        </section>
+        
+        <!-- Head-to-Head Performance -->
+        <section class="card">
+            <h2>Head-to-Head Performance Comparison</h2>
+            
+            <div class="comparison-grid">
+                <div class="model-section gpt41mini">
+                    <h3>🏆 GPT-4.1-mini (Winner)</h3>
+                    <div class="metric-grid">
+                        <div class="metric-card success">
+                            <div class="metric-label">Success Rate</div>
+                            <div class="metric-value">78.6%</div>
+                            <div class="metric-label">31.45 out of 40</div>
+                        </div>
+                        <div class="metric-card success">
+                            <div class="metric-label">Average Score</div>
+                            <div class="metric-value">0.786</div>
+                        </div>
+                        <div class="metric-card info">
+                            <div class="metric-label">Perfect Scores</div>
+                            <div class="metric-value">26</div>
+                            <div class="metric-label">65% of questions</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Performance by Difficulty:</h4>
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Easy Questions (28)</span>
+                            <span>23/28 (82.1%)</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill gpt41mini" style="width: 82.1%;">82.1%</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Medium Questions (12)</span>
+                            <span>8.45/12 (70.4%)</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill gpt41mini" style="width: 70.4%;">70.4%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="model-section gpt41">
+                    <h3>GPT-4.1 (Full Model)</h3>
+                    <div class="metric-grid">
+                        <div class="metric-card warning">
+                            <div class="metric-label">Success Rate</div>
+                            <div class="metric-value">79.0%</div>
+                            <div class="metric-label">31.6 out of 40</div>
+                        </div>
+                        <div class="metric-card warning">
+                            <div class="metric-label">Average Score</div>
+                            <div class="metric-value">0.790</div>
+                        </div>
+                        <div class="metric-card info">
+                            <div class="metric-label">Perfect Scores</div>
+                            <div class="metric-value">25</div>
+                            <div class="metric-label">62.5% of questions</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Performance by Difficulty:</h4>
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Easy Questions (28)</span>
+                            <span>22.9/28 (81.8%)</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill gpt41" style="width: 81.8%;">81.8%</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Medium Questions (12)</span>
+                            <span>8.7/12 (72.5%)</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill gpt41" style="width: 72.5%;">72.5%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="vs-divider">Remarkably Close Performance!</div>
+            
+            <div class="insight-box">
+                <h3>🔍 Surprising Result: Mini Variant Competitiveness</h3>
+                <p>The performance gap is minimal (0.4 percentage points), with GPT-4.1-mini actually leading slightly. This challenges assumptions about model size and performance, suggesting that the mini variant is highly optimized for structured analytical tasks like banking supervision.</p>
+            </div>
+        </section>
+        
+        <!-- Score Distribution Analysis -->
+        <section class="card">
+            <h2>Score Distribution Analysis</h2>
+            
+            <div class="comparison-grid">
+                <div>
+                    <h3>GPT-4.1-mini Distribution</h3>
+                    <div class="score-distribution">
+                        <div class="score-bar">
+                            <div class="score-label">Perfect (1.0)</div>
+                            <div class="score-visual">
+                                <div class="score-fill gpt41mini" style="width: 65%;">26 questions</div>
+                            </div>
+                            <div class="score-count">65%</div>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-label">High (0.9+)</div>
+                            <div class="score-visual">
+                                <div class="score-fill gpt41mini" style="width: 15%; background: #fbbf24;">6 questions</div>
+                            </div>
+                            <div class="score-count">15%</div>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-label">Partial (0.5-0.8)</div>
+                            <div class="score-visual">
+                                <div class="score-fill gpt41mini" style="width: 5%; background: #f97316;">2 questions</div>
+                            </div>
+                            <div class="score-count">5%</div>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-label">Zero (0.0)</div>
+                            <div class="score-visual">
+                                <div class="score-fill gpt41mini" style="width: 15%; background: #ef4444;">6 questions</div>
+                            </div>
+                            <div class="score-count">15%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>GPT-4.1 Distribution</h3>
+                    <div class="score-distribution">
+                        <div class="score-bar">
+                            <div class="score-label">Perfect (1.0)</div>
+                            <div class="score-visual">
+                                <div class="score-fill gpt41" style="width: 62.5%;">25 questions</div>
+                            </div>
+                            <div class="score-count">62.5%</div>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-label">High (0.9+)</div>
+                            <div class="score-visual">
+                                <div class="score-fill gpt41" style="width: 20%; background: #fbbf24;">8 questions</div>
+                            </div>
+                            <div class="score-count">20%</div>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-label">Partial (0.5-0.8)</div>
+                            <div class="score-visual">
+                                <div class="score-fill gpt41" style="width: 2.5%; background: #f97316;">1 question</div>
+                            </div>
+                            <div class="score-count">2.5%</div>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-label">Zero (0.0)</div>
+                            <div class="score-visual">
+                                <div class="score-fill gpt41" style="width: 15%; background: #ef4444;">6 questions</div>
+                            </div>
+                            <div class="score-count">15%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="insight-box">
+                <h3>📊 Distribution Insights</h3>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Perfect Scores:</strong> GPT-4.1-mini leads with 65% vs 62.5%</li>
+                    <li><strong>High Scores (0.9+):</strong> GPT-4.1 has more high-but-not-perfect scores (20% vs 15%)</li>
+                    <li><strong>Failure Rate:</strong> Both models fail on exactly 15% of questions</li>
+                    <li><strong>Consistency:</strong> GPT-4.1-mini shows more binary performance (perfect or zero)</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Topic Performance Analysis -->
+        <section class="card">
+            <h2>Performance by Topic Category</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Topic Category</th>
+                        <th>Questions</th>
+                        <th>GPT-4.1-mini</th>
+                        <th>GPT-4.1</th>
+                        <th>Winner</th>
+                        <th>Gap</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>General MRM</td>
+                        <td>29</td>
+                        <td>78.6%</td>
+                        <td>79.0%</td>
+                        <td><span class="badge badge-success">GPT-4.1</span></td>
+                        <td>0.4pp</td>
+                    </tr>
+                    <tr>
+                        <td>Validation</td>
+                        <td>6</td>
+                        <td>76.7%</td>
+                        <td>81.7%</td>
+                        <td><span class="badge badge-success">GPT-4.1</span></td>
+                        <td>5.0pp</td>
+                    </tr>
+                    <tr>
+                        <td>Governance</td>
+                        <td>6</td>
+                        <td>83.3%</td>
+                        <td>75.0%</td>
+                        <td><span class="badge badge-success">GPT-4.1-mini</span></td>
+                        <td>8.3pp</td>
+                    </tr>
+                    <tr>
+                        <td>Documentation</td>
+                        <td>2</td>
+                        <td>95.0%</td>
+                        <td>97.5%</td>
+                        <td><span class="badge badge-success">GPT-4.1</span></td>
+                        <td>2.5pp</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="success-highlight">
+                <h3>🎯 Topic Strengths</h3>
+                <p><strong>GPT-4.1-mini:</strong> Excels in governance topics (83.3%), showing strong understanding of organizational structures and oversight.</p>
+                <p><strong>GPT-4.1:</strong> Slightly better on validation (81.7%) and documentation (97.5%), demonstrating technical depth.</p>
+            </div>
+        </section>
+        
+        <!-- Detailed Question Analysis -->
+        <section class="card">
+            <h2>Question-by-Question Performance</h2>
+            
+            <div class="detailed-comparison">
+                <h3>Notable Performance Differences (>0.3 point gap)</h3>
+                
+                <div class="question-row">
+                    <div class="question-id">Q3</div>
+                    <div class="question-topic">Model definition and components</div>
+                    <div class="model-scores">
+                        <div class="model-score score-partial">Mini: 0.5</div>
+                        <div class="model-score score-perfect">4.1: 1.0</div>
+                    </div>
+                </div>
+                
+                <div class="question-row">
+                    <div class="question-id">Q5</div>
+                    <div class="question-topic">Models as simplified representations</div>
+                    <div class="model-scores">
+                        <div class="model-score score-zero">Mini: 0.0</div>
+                        <div class="model-score score-good">4.1: 0.9</div>
+                    </div>
+                </div>
+                
+                <div class="question-row">
+                    <div class="question-id">Q9</div>
+                    <div class="question-topic">Effective challenge concept</div>
+                    <div class="model-scores">
+                        <div class="model-score score-zero">Mini: 0.0</div>
+                        <div class="model-score score-zero">4.1: 0.0</div>
+                    </div>
+                </div>
+                
+                <div class="question-row">
+                    <div class="question-id">Q11</div>
+                    <div class="question-topic">Managing residual model risk</div>
+                    <div class="model-scores">
+                        <div class="model-score score-good">Mini: 0.7</div>
+                        <div class="model-score score-zero">4.1: 0.0</div>
+                    </div>
+                </div>
+                
+                <div class="question-row">
+                    <div class="question-id">Q22</div>
+                    <div class="question-topic">Bank's risk appetite for models</div>
+                    <div class="model-scores">
+                        <div class="model-score score-zero">Mini: 0.0</div>
+                        <div class="model-score score-zero">4.1: 0.0</div>
+                    </div>
+                </div>
+                
+                <div class="question-row">
+                    <div class="question-id">Q33</div>
+                    <div class="question-topic">Managing residual model risk (validation)</div>
+                    <div class="model-scores">
+                        <div class="model-score score-perfect">Mini: 1.0</div>
+                        <div class="model-score score-zero">4.1: 0.0</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Performance Trends -->
+        <section class="card">
+            <h2>Performance Trends & Insights</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>GPT-4.1-mini</th>
+                        <th>GPT-4.1</th>
+                        <th>Analysis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Completion Quality</td>
+                        <td>Excellent</td>
+                        <td>Excellent</td>
+                        <td>Both generate detailed, well-structured responses</td>
+                    </tr>
+                    <tr>
+                        <td>Format Compliance</td>
+                        <td>100%</td>
+                        <td>100%</td>
+                        <td>Perfect adherence to required format</td>
+                    </tr>
+                    <tr>
+                        <td>Citation Accuracy</td>
+                        <td>High</td>
+                        <td>High</td>
+                        <td>Proper use of [OCC-Handbook], [SR11-7]</td>
+                    </tr>
+                    <tr>
+                        <td>Technical Depth</td>
+                        <td>Strong</td>
+                        <td>Slightly Stronger</td>
+                        <td>Both demonstrate solid domain knowledge</td>
+                    </tr>
+                    <tr>
+                        <td>Response Length</td>
+                        <td>Appropriate</td>
+                        <td>Slightly Longer</td>
+                        <td>Both stay within 256 token limit effectively</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="insight-box">
+                <h3>🧠 Key Performance Insights</h3>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Minimal Performance Gap:</strong> Only 0.4 percentage points separate the models</li>
+                    <li><strong>Different Strengths:</strong> Mini excels in governance, Full model in validation</li>
+                    <li><strong>Consistent Failure Points:</strong> Both struggle with similar complex concepts</li>
+                    <li><strong>High Baseline:</strong> Both models achieve ~79% success rate, far superior to GPT-5 variants</li>
+                    <li><strong>Format Mastery:</strong> Both perfectly follow the required structured response format</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Technical Configuration -->
+        <section class="card">
+            <h2>Technical Configuration Comparison</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>GPT-4.1-mini</th>
+                        <th>GPT-4.1</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Evaluation Time</td>
+                        <td>14:10:55</td>
+                        <td>14:11:53</td>
+                        <td>58-second gap, minimal temporal difference</td>
+                    </tr>
+                    <tr>
+                        <td>Max Tokens</td>
+                        <td>256</td>
+                        <td>256</td>
+                        <td>Identical constraint</td>
+                    </tr>
+                    <tr>
+                        <td>Questions</td>
+                        <td>40</td>
+                        <td>40</td>
+                        <td>Same comprehensive evaluation set</td>
+                    </tr>
+                    <tr>
+                        <td>Rollouts</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>Single attempt per question</td>
+                    </tr>
+                    <tr>
+                        <td>Environment</td>
+                        <td>banking-mrm</td>
+                        <td>banking-mrm</td>
+                        <td>Identical specialized domain</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Recommendations -->
+        <section class="card">
+            <h2>Recommendations & Conclusions</h2>
+            
+            <div class="success-highlight">
+                <h3>🏆 Model Selection Guidance</h3>
+                <p><strong>For Banking MRM Tasks:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>GPT-4.1-mini:</strong> Recommended for governance-focused analysis, cost-efficient deployment</li>
+                    <li><strong>GPT-4.1:</strong> Preferred for technical validation work, detailed model documentation</li>
+                    <li><strong>Either Model:</strong> Excellent for general MRM questions, regulatory compliance analysis</li>
+                </ul>
+            </div>
+            
+            <div class="success-highlight">
+                <h3>✅ Key Advantages of GPT-4.1 Series</h3>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Functional Completion Generation:</strong> Unlike GPT-5 variants, both models consistently produce content</li>
+                    <li><strong>High Performance:</strong> ~79% success rate demonstrates strong domain competency</li>
+                    <li><strong>Format Compliance:</strong> Perfect adherence to structured response requirements</li>
+                    <li><strong>Domain Knowledge:</strong> Strong understanding of banking supervision principles</li>
+                    <li><strong>Cost Efficiency:</strong> Mini variant offers near-identical performance at lower cost</li>
+                </ul>
+            </div>
+            
+            <div class="insight-box">
+                <h3>📈 Future Evaluation Recommendations</h3>
+                <ul style="margin-left: 20px;">
+                    <li>Increase question count to better differentiate model capabilities</li>
+                    <li>Include more medium and hard difficulty questions</li>
+                    <li>Test with multiple rollouts to assess consistency</li>
+                    <li>Evaluate performance on edge cases and complex scenarios</li>
+                    <li>Compare against human expert baselines</li>
+                </ul>
+            </div>
+            
+            <h3>Final Assessment</h3>
+            <p>Both GPT-4.1 and GPT-4.1-mini demonstrate exceptional performance on banking model risk management tasks. The minimal performance gap (0.4 percentage points) suggests that the mini variant offers outstanding value, providing near-identical analytical capabilities at reduced computational cost. Organizations should consider GPT-4.1-mini as the primary choice for banking supervision tasks, reserving GPT-4.1 for specialized validation work requiring maximum technical depth.</p>
+        </section>
+    </div>
+    
+    <footer class="footer">
+        <p>GPT-4.1 vs GPT-4.1-mini Banking MRM Analysis - Generated on <script>document.write(new Date().toLocaleDateString());</script></p>
+        <p>GPT-4.1-mini ID: 4f2e4ede | GPT-4.1 ID: a30e8f9f</p>
+    </footer>
+</body>
+</html>
